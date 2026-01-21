@@ -1,21 +1,21 @@
 //
 //  MatTime+CoreDataProperties.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/15/24.
 //
-//
-
 
 import Foundation
 import CoreData
 
 extension MatTime {
 
+    // MARK: - Fetch Request
     @nonobjc public class func fetchRequest() -> NSFetchRequest<MatTime> {
         return NSFetchRequest<MatTime>(entityName: "MatTime")
     }
 
+    // MARK: - Attributes
     @NSManaged public var id: UUID?
     @NSManaged public var type: String?
     @NSManaged public var time: String?
@@ -27,16 +27,18 @@ extension MatTime {
     @NSManaged public var goodForBeginners: Bool
     @NSManaged public var kids: Bool
     @NSManaged public var createdTimestamp: Date?
-    
-    @NSManaged public var appDayOfWeek: AppDayOfWeek?
 
+    // MARK: - Relationships
+    @NSManaged public var appDayOfWeek: AppDayOfWeek?
 }
 
+// MARK: - Identifiable
 extension MatTime: Identifiable {}
 
+// MARK: - Firestore Conversion
 extension MatTime {
     func toFirestoreData() -> [String: Any] {
-        return [
+        var data: [String: Any] = [
             "time": self.time ?? "",
             "type": self.type ?? "",
             "gi": self.gi,
@@ -46,7 +48,11 @@ extension MatTime {
             "restrictionDescription": self.restrictionDescription ?? "",
             "goodForBeginners": self.goodForBeginners,
             "kids": self.kids,
-            "createdTimestamp": self.createdTimestamp ?? Date(),
+            "createdTimestamp": self.createdTimestamp ?? Date()
         ]
+        if let id = self.id {
+            data["id"] = id.uuidString
+        }
+        return data
     }
 }

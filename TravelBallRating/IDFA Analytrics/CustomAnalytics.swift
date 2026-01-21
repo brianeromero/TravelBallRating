@@ -1,0 +1,17 @@
+//
+//  CustomAnalytics.swift
+//  TravelBallRating
+//
+//  Created by Brian Romero on 11/14/24.
+//
+
+import Foundation
+
+class CustomAnalytics {
+    
+    @MainActor
+    func trackEvent(_ event: String) {
+        guard IDFAHelper.getIdfa() != nil else { return }
+        // Log event with IDFA
+    }
+}

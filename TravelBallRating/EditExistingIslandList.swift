@@ -1,0 +1,219 @@
+//
+//  EditExistingTeamList.swift
+//  Mat_Finder
+//
+//  Created by Brian Romero on 6/26/24.
+//
+
+import Foundation
+import SwiftUI
+import CoreData
+import os
+import OSLog // Ensure OSLog is imported for os_log
+
+
+
+// MARK: - EditExistingTeamList (Wrapper View)
+struct EditExistingTeamList: View {
+    @StateObject private var persistenceController = PersistenceController.shared
+    @State private var selectedTeam: Team? = nil
+
+    @EnvironmentObject private var authViewModel: AuthViewModel
+    @Binding var navigationPath: NavigationPath
+
+    // Receive toast bindings from parent (AppRootDestinationView)
+    @Binding var showGlobalToast: Bool
+    @Binding var globalToastMessage: String
+    @Binding var globalToastType: ToastView.ToastType
+
+    // Update init to accept new bindings (if you had a custom init, otherwise Swift provides it)
+    init(navigationPath: Binding<NavigationPath>, showGlobalToast: Binding<Bool>, globalToastMessage: Binding<String>, globalToastType: Binding<ToastView.ToastType>) {
+        _navigationPath = navigationPath
+        _showGlobalToast = showGlobalToast
+        _globalToastMessage = globalToastMessage
+        _globalToastType = globalToastType
+    }
+
+    var body: some View {
+        EditExistingTeamListContent(
+            viewContext: persistenceController.viewContext,
+            selectedTeam: $selectedTeam,
+            navigationPath: $navigationPath,
+            showSuccessToast: $showGlobalToast,      // Pass global binding down
+            successToastMessage: $globalToastMessage, // Pass global binding down
+            successToastType: $globalToastType        // Pass global binding down
+        )
+        // No .showToast modifier here; it's on AppRootView
+    }
+}
+
+// MARK: - EditExistingTeamListContent (Content View)
+struct EditExistingTeamListContent: View {
+    let viewContext: NSManagedObjectContext
+    @Binding var selectedTeam: Team?
+
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var enterZipCodeViewModel: EnterZipCodeViewModel
+
+    // This ViewModel is responsible for filtering and holding the filtered data
+    @StateObject private var viewModel = EditExistingTeamListViewModel()
+
+    // Fetch all team; the filtering happens in the ViewModel
+    @FetchRequest(
+        entity: Team.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Team.teamName, ascending: true)]
+    )
+    private var teams: FetchedResults<Team>
+
+
+    // Bindings for the global toast message
+    @Binding var showSuccessToast: Bool
+    @Binding var successToastMessage: String
+    @Binding var successToastType: ToastView.ToastType
+
+    @Binding var navigationPath: NavigationPath
+
+    // Convenience property to observe changes to the fetched results' object IDs
+    private var teamObjectIDs: [NSManagedObjectID] {
+        teams.map { $0.objectID }
+    }
+    // Custom initializer to accept all bindings
+    init(viewContext: NSManagedObjectContext, selectedTeam: Binding<Team?>, navigationPath: Binding<NavigationPath>, showSuccessToast: Binding<Bool>, successToastMessage: Binding<String>, successToastType: Binding<ToastView.ToastType>) {
+        self.viewContext = viewContext
+        self._selectedTeam = selectedTeam
+        self._navigationPath = navigationPath
+        self._showSuccessToast = showSuccessToast
+        self._successToastMessage = successToastMessage
+        self._successToastType = successToastType
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SearchBar(text: $viewModel.searchQuery)
+                .onChange(of: viewModel.searchQuery) { oldValue, newValue in
+                    // When search query changes, update the filtered list
+                    viewModel.updateFilteredTeam(with: teams)
+                }
+                .padding(.horizontal, 16)
+
+            if viewModel.isLoading {
+                ProgressView("Searching...")
+                    .padding()
+            } else if viewModel.filteredTeams.isEmpty && !viewModel.searchQuery.isEmpty {
+                Spacer()
+                Text("No teams match your search criteria.")
+                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                Spacer()
+            } else {
+                TeamList(
+                    // Pass the filtered list from the ViewModel
+                    teams: viewModel.searchQuery.isEmpty ? Array(teams) : viewModel.filteredTeams,
+                    selectedTeam: $selectedTeam,
+                    searchText: $viewModel.searchQuery,
+                    navigationDestination: .editExistingTeam,
+                    title: "",
+                    onTeamChange: { _ in }, // You might want to remove this if not needed
+                    navigationPath: $navigationPath,
+                    showSuccessToast: $showSuccessToast,        // Pass global binding down
+                    successToastMessage: $successToastMessage,  // Pass global binding down
+                    successToastType: $successToastType         // Pass global binding down
+                )
+            }
+        }
+        .background(Color(.systemBackground))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Edit teams")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+            }
+        }
+        .onAppear {
+            // ✅ CRITICAL: Force a re-filter when this view appears.
+            // This ensures the list is up-to-date even if a Core Data notification
+            // was missed or delayed during navigation transitions.
+            os_log("EditExistingTeamListContent: View appeared. Forcing filter update.", log: OSLog.default, type: .info)
+            viewModel.forceUpdateFilteredTeams(with: teams)
+        }
+        // ✅ Keep these onChange and onReceive to react to live Core Data changes
+        .onChange(of: teams.count) {
+            os_log("EditExistingTeamListContent: teams count changed, re-filtering.", log: OSLog.default, type: .info)
+            viewModel.updateFilteredTeams(with: teams)
+        }
+        .onChange(of: teamObjectIDs) {
+            os_log("EditExistingTeamListContent: teams objectIDs changed, re-filtering.", log: OSLog.default, type: .info)
+            viewModel.updateFilteredTeams(with: teams)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name.NSManagedObjectContextDidSave)) { _ in
+            os_log("EditExistingTeamListContent: NSManagedObjectContextDidSave notification received, forcing immediate re-filter.", log: OSLog.default, type: .info)
+            viewModel.forceUpdateFilteredTeams(with: teams)
+        }
+        // No .showToast modifier here; it's on AppRootView
+    }
+}
+
+
+// MARK: - EditExistingTeamListViewModel
+class EditExistingTeamListViewModel: ObservableObject {
+    @Published var searchQuery: String = ""
+    @Published var filteredTeams: [Team] = []
+    @Published var showNoMatchAlert: Bool = false
+    @Published var isLoading: Bool = false
+
+    private var debounceTimer: Timer?
+
+    // Existing debounced update function (good for search bar input)
+    func updateFilteredTeams(with teams: FetchedResults<Team>) {
+        // Invalidate existing timer and set a new one
+        debounceTimer?.invalidate()
+        debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            // All filtering operations are now on the main thread
+            DispatchQueue.main.async {
+                self.performFiltering(with: teams)
+            }
+        }
+    }
+
+    // NEW: Function to force an immediate update (for Core Data save notifications)
+    func forceUpdateFilteredTeams(with teams: FetchedResults<Team>) {
+        debounceTimer?.invalidate() // Invalidate any pending debounce, as we want immediate action
+        DispatchQueue.main.async {
+            self.performFiltering(with: teams)
+        }
+    }
+
+    // Helper method to consolidate filtering logic to avoid code duplication
+    private func performFiltering(with teams: FetchedResults<Team>) {
+        os_log("ViewModel: performFiltering called. Query: '%{public}s'", log: OSLog.default, type: .info, searchQuery)
+        self.isLoading = true
+        let lowercasedQuery = self.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+
+        if lowercasedQuery.isEmpty {
+            self.filteredTeams = Array(teams)
+            self.showNoMatchAlert = false
+            self.isLoading = false
+            return
+        }
+
+        let filtered = teams.filter { team in
+            let properties = [
+                team.teamName,
+                team.teamLocation,
+                team.teamWebsite?.absoluteString,
+                String(team.latitude),
+                String(team.longitude)
+            ]
+            return properties.compactMap { $0?.lowercased() }.contains { $0.contains(lowercasedQuery) }
+        }
+
+        self.filteredTeams = filtered
+        self.showNoMatchAlert = !self.searchQuery.isEmpty && self.filteredTeams.isEmpty
+        os_log("ViewModel: Filtering complete. Result count: %d. Is Loading: %{public}@", log: OSLog.default, type: .info, filtered.count, isLoading.description)
+        self.isLoading = false
+    }
+}

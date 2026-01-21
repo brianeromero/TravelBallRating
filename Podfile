@@ -1,6 +1,6 @@
 platform :ios, '18.0'
 
-target 'Mat_Finder' do
+target 'TravelBallRating' do
   use_frameworks!
 
   # ✅ Modular Firebase (using individual pods, highly recommended)
