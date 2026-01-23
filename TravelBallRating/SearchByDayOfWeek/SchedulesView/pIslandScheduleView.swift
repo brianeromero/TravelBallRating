@@ -1,13 +1,13 @@
 //
-//  pIslandScheduleView.swift
-//  Mat_Finder
+//  teamScheduleView.swift
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/12/24.
 //
 
 import SwiftUI
 
-struct pIslandScheduleView: View {
+struct teamScheduleView: View {
     @ObservedObject var viewModel: AppDayOfWeekViewModel
     @State private var selectedTeam: Team?
     @State private var selectedDay: DayOfWeek?
@@ -83,8 +83,8 @@ struct pIslandScheduleView: View {
                     .foregroundColor(.gray)
                     .padding()
 
-                // Example list of islands to choose from
-                List(viewModel.allIslands, id: \.self) { team in
+                // Example list of teams to choose from
+                List(viewModel.allTeams, id: \.self) { team in
                     Button(action: {
                         self.selectedTeam = team
                         Task {

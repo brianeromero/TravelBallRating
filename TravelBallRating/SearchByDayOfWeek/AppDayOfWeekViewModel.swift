@@ -1,5 +1,5 @@
 // AppDayOfWeekViewModel.swift
-// Mat_Finder
+// TravelBallRating
 //
 // Created by Brian Romero on 6/26/24.
 //
@@ -17,8 +17,8 @@ final class AppDayOfWeekViewModel: ObservableObject {
     @Published var currentAppDayOfWeek: AppDayOfWeek?
     @Published var selectedTeam: Team?
     @Published var matTime: MatTime?
-    @Published var islandsWithMatTimes: [(Team, [MatTime])] = []
-    @Published var islandSchedules: [DayOfWeek: [(Team, [MatTime])]] = [:]
+    @Published var teamsWithMatTimes: [(Team, [MatTime])] = []
+    @Published var teamSchedules: [DayOfWeek: [(Team, [MatTime])]] = [:]
     var enterZipCodeViewModel: EnterZipCodeViewModel
     @Published var matTimesForDay: [DayOfWeek: [MatTime]] = [:]
     
@@ -26,7 +26,7 @@ final class AppDayOfWeekViewModel: ObservableObject {
     @Published var appDayOfWeekID: String?
     @Published var saveEnabled: Bool = false
     @Published var schedules: [DayOfWeek: [AppDayOfWeek]] = [:]
-    @Published var allIslands: [Team] = []
+    @Published var allTeams: [Team] = []
     @Published var errorMessage: String?
     @Published var newMatTime: MatTime?
     
@@ -96,13 +96,13 @@ final class AppDayOfWeekViewModel: ObservableObject {
         let selectedTeam: Team?
         let currentAppDayOfWeek: AppDayOfWeek?
         let matTime: MatTime?
-        let islandsWithMatTimes: [(Team, [MatTime])]
-        let islandSchedules: [DayOfWeek: [(Team, [MatTime])]]
+        let teamsWithMatTimes: [(Team, [MatTime])]
+        let teamSchedules: [DayOfWeek: [(Team, [MatTime])]]
         let appDayOfWeekList: [AppDayOfWeek]
         let appDayOfWeekID: String?
         let saveEnabled: Bool
         let schedules: [DayOfWeek: [AppDayOfWeek]]
-        let allIslands: [Team]
+        let allTeams: [Team]
         let errorMessage: String?
         let newMatTime: MatTime?
         let dayOfWeekStates: [DayOfWeek: Bool]
@@ -121,11 +121,11 @@ final class AppDayOfWeekViewModel: ObservableObject {
         
         static func == (lhs: Snapshot, rhs: Snapshot) -> Bool {
             
-            func islandsEqual(_ a: [Team], _ b: [Team]) -> Bool {
+            func teamsEqual(_ a: [Team], _ b: [Team]) -> Bool {
                 a.map(\.id) == b.map(\.id)
             }
             
-            func islandTuplesEqual(_ a: [(Team, [MatTime])],
+            func teamTuplesEqual(_ a: [(Team, [MatTime])],
                                    _ b: [(Team, [MatTime])]) -> Bool {
                 guard a.count == b.count else { return false }
                 for (lhsTuple, rhsTuple) in zip(a, b) {
@@ -135,11 +135,11 @@ final class AppDayOfWeekViewModel: ObservableObject {
                 return true
             }
             
-            func islandSchedulesEqual(_ a: [DayOfWeek: [(Team, [MatTime])]],
+            func teamSchedulesEqual(_ a: [DayOfWeek: [(Team, [MatTime])]],
                                       _ b: [DayOfWeek: [(Team, [MatTime])]]) -> Bool {
                 guard a.keys.sorted() == b.keys.sorted() else { return false }
                 for key in a.keys {
-                    if !islandTuplesEqual(a[key] ?? [], b[key] ?? []) { return false }
+                    if !teamTuplesEqual(a[key] ?? [], b[key] ?? []) { return false }
                 }
                 return true
             }
@@ -147,13 +147,13 @@ final class AppDayOfWeekViewModel: ObservableObject {
             return lhs.selectedTeam?.id == rhs.selectedTeam?.id &&
             lhs.currentAppDayOfWeek == rhs.currentAppDayOfWeek &&
             lhs.matTime?.id == rhs.matTime?.id &&
-            islandTuplesEqual(lhs.islandsWithMatTimes, rhs.islandsWithMatTimes) &&
-            islandSchedulesEqual(lhs.islandSchedules, rhs.islandSchedules) &&
+            teamTuplesEqual(lhs.teamsWithMatTimes, rhs.teamsWithMatTimes) &&
+            teamSchedulesEqual(lhs.teamSchedules, rhs.teamSchedules) &&
             lhs.appDayOfWeekList == rhs.appDayOfWeekList &&
             lhs.appDayOfWeekID == rhs.appDayOfWeekID &&
             lhs.saveEnabled == rhs.saveEnabled &&
             lhs.schedules == rhs.schedules &&
-            islandsEqual(lhs.allIslands, rhs.allIslands) &&
+            teamsEqual(lhs.allTeams, rhs.allTeams) &&
             lhs.errorMessage == rhs.errorMessage &&
             lhs.newMatTime?.id == rhs.newMatTime?.id &&
             lhs.dayOfWeekStates == rhs.dayOfWeekStates &&
@@ -179,13 +179,13 @@ final class AppDayOfWeekViewModel: ObservableObject {
             selectedTeam: selectedTeam,
             currentAppDayOfWeek: currentAppDayOfWeek,
             matTime: matTime,
-            islandsWithMatTimes: islandsWithMatTimes,
-            islandSchedules: islandSchedules,
+            teamsWithMatTimes: teamsWithMatTimes,
+            teamSchedules: teamSchedules,
             appDayOfWeekList: appDayOfWeekList,
             appDayOfWeekID: appDayOfWeekID,
             saveEnabled: saveEnabled,
             schedules: schedules,
-            allIslands: allIslands,
+            allTeams: allTeams,
             errorMessage: errorMessage,
             newMatTime: newMatTime,
             dayOfWeekStates: dayOfWeekStates,
@@ -254,7 +254,7 @@ final class AppDayOfWeekViewModel: ObservableObject {
     }
     
     func saveAppDayOfWeekToFirestore(
-        selectedIslandID: NSManagedObjectID,
+        selectedTeamID: NSManagedObjectID,
         selectedDay: DayOfWeek,
         appDayOfWeekObjectID: NSManagedObjectID
     ) async throws {
@@ -273,7 +273,7 @@ final class AppDayOfWeekViewModel: ObservableObject {
                         }
                         
                         // Rehydrate Team
-                        guard try backgroundContext.existingObject(with: selectedIslandID) is Team else {
+                        guard try backgroundContext.existingObject(with: selectedTeamID) is Team else {
                             throw NSError(domain: "AppDayOfWeekViewModel", code: 2,
                                           userInfo: [NSLocalizedDescriptionKey: "Failed to rehydrate selectedTeam in background context."])
                         }
@@ -352,11 +352,11 @@ final class AppDayOfWeekViewModel: ObservableObject {
         
         do {
             let teams = try await dataManager.fetchTeamsAsync()
-            allIslands = teams
+            allTeams = teams
             isDataLoaded = true
-            print("Fetched teams: \(allIslands)")
+            print("Fetched teams: \(allTeams)")
         } catch {
-            allIslands = []
+            allTeams = []
             errorMessage = "Error fetching teams: \(error.localizedDescription)"
             isDataLoaded = true
             print("Error fetching teams: \(error.localizedDescription)")
@@ -590,7 +590,7 @@ final class AppDayOfWeekViewModel: ObservableObject {
             )
         }
 
-        if selectedTeam == nil, let inferredIsland = appDayOfWeek.team {
+        if selectedTeam == nil, let inferredTeam = appDayOfWeek.team {
             self.selectedTeam = inferredTeam
         }
 
@@ -796,7 +796,7 @@ final class AppDayOfWeekViewModel: ObservableObject {
 
         // 1. Collect results as NSManagedObjectID arrays from the TaskGroup
         // The TaskGroup will now return (DayOfWeek, [NSManagedObjectID])
-        let islandObjectIDsTempDict = await withTaskGroup(of: (DayOfWeek, [NSManagedObjectID]).self) { group -> [DayOfWeek: [NSManagedObjectID]] in
+        let teamObjectIDsTempDict = await withTaskGroup(of: (DayOfWeek, [NSManagedObjectID]).self) { group -> [DayOfWeek: [NSManagedObjectID]] in
             var result: [DayOfWeek: [NSManagedObjectID]] = [:]
 
             for day in DayOfWeek.allCases {
@@ -805,7 +805,7 @@ final class AppDayOfWeekViewModel: ObservableObject {
 
                     do {
                         // This now correctly receives [NSManagedObjectID]
-                        let fetchedObjectIDs = try await self.repository.fetchAllIslands(forDay: day.rawValue)
+                        let fetchedObjectIDs = try await self.repository.fetchAllTeams(forDay: day.rawValue)
                         print("TaskGroup: Fetched \(fetchedObjectIDs.count) team ObjectIDs for day \(day.rawValue).")
                         return (day, fetchedObjectIDs)
                     } catch {
@@ -826,11 +826,11 @@ final class AppDayOfWeekViewModel: ObservableObject {
 
         // 2. Rehydrate the Team objects and extract MatTimes on the MainActor
         await MainActor.run {
-            print("MainActor: Starting rehydration of islands and matTimes.")
+            print("MainActor: Starting rehydration of teams and matTimes.")
             var hydratedSchedules: [DayOfWeek: [(Team, [MatTime])]] = [:]
 
-            for (day, objectIDs) in islandObjectIDsTempDict {
-                var islandsWithMatTimesForDay: [(Team, [MatTime])] = []
+            for (day, objectIDs) in teamObjectIDsTempDict {
+                var teamsWithMatTimesForDay: [(Team, [MatTime])] = []
                 for objectID in objectIDs {
                     do {
                         // Rehydrate the Team object on the main context
@@ -856,10 +856,10 @@ final class AppDayOfWeekViewModel: ObservableObject {
 
                         if matTimesForCurrentDay.isEmpty {
                             print("    ⚠️ MainActor: Team \(team.teamName ?? "Unnamed") has no MatTimes for day \(day.rawValue). Excluding from schedule.")
-                            continue // Exclude islands without mat times for this specific day
+                            continue // Exclude teams without mat times for this specific day
                         }
 
-                        islandsWithMatTimesForDay.append((team, matTimesForCurrentDay))
+                        teamsWithMatTimesForDay.append((team, matTimesForCurrentDay))
                         let latString = String(format: "%.6f", team.latitude)
                         let lonString = String(format: "%.6f", team.longitude)
                         print("    ✅ MainActor: Rehydrated and processed Team: \(team.teamName ?? "Unnamed"), MatTimes: \(matTimesForCurrentDay.count), Lat: \(latString), Lon: \(lonString), ID: \(team.objectID)")
@@ -868,14 +868,14 @@ final class AppDayOfWeekViewModel: ObservableObject {
                         print("    ❌ MainActor: Error rehydrating or processing team \(objectID): \(error.localizedDescription)")
                     }
                 }
-                // Only add the day to the dictionary if there are valid islands with mat times for it
-                if !islandsWithMatTimesForDay.isEmpty {
-                    hydratedSchedules[day] = islandsWithMatTimesForDay
+                // Only add the day to the dictionary if there are valid teams with mat times for it
+                if !teamsWithMatTimesForDay.isEmpty {
+                    hydratedSchedules[day] = teamsWithMatTimesForDay
                 }
             }
 
-            self.islandSchedules = hydratedSchedules
-            print("✨ MainActor: Successfully updated islandSchedules with \(self.islandSchedules.count) days.")
+            self.teamSchedules = hydratedSchedules
+            print("✨ MainActor: Successfully updated teamSchedules with \(self.teamSchedules.count) days.")
         }
     }
     
@@ -1304,18 +1304,18 @@ final class AppDayOfWeekViewModel: ObservableObject {
     
     // Assuming this is inside your AppDayOfWeekViewModel class
     // Inside AppDayOfWeekViewModel
-    func fetchIslands(forDay day: DayOfWeek) async {
+    func fetchTeams(forDay day: DayOfWeek) async {
         print("🚀 AppDayOfWeekViewModel: Starting fetch for day: \(day.rawValue)")
 
         do {
-            // 1️⃣ Fetch islands from Firestore for the day (background)
-            let querySnapshot = try await firestore.collection("islands")
+            // 1️⃣ Fetch teams from Firestore for the day (background)
+            let querySnapshot = try await firestore.collection("teams")
                 .whereField("days", arrayContains: day.rawValue)
                 .getDocuments()
             print("☁️ Firestore: Fetched \(querySnapshot.documents.count) documents for day \(day.rawValue).")
 
             // 2️⃣ Merge Firestore data into Core Data on a background context
-            let islandsToUpdateInFirestore = try await withCheckedThrowingContinuation { continuation in
+            let teamsToUpdateInFirestore = try await withCheckedThrowingContinuation { continuation in
                 PersistenceController.shared.container.performBackgroundTask { backgroundContext in
                     do {
                         var firestoreUpdateList: [(Team, DocumentReference)] = []
@@ -1326,8 +1326,8 @@ final class AppDayOfWeekViewModel: ObservableObject {
                             fetchRequest.predicate = NSPredicate(format: "id == %@", teamID)
                             fetchRequest.fetchLimit = 1
 
-                            let existingIsland = try? backgroundContext.fetch(fetchRequest).first
-                            if let team = existingIsland {
+                            let existingTeam = try? backgroundContext.fetch(fetchRequest).first
+                            if let team = existingTeam {
                                 team.configure(document.data())
                                 firestoreUpdateList.append((team, document.reference))
                                 print("    ➡️ Updated existing team: \(team.teamName ?? "Unnamed")")
@@ -1353,16 +1353,16 @@ final class AppDayOfWeekViewModel: ObservableObject {
                 }
             }
 
-            // 3️⃣ Fetch merged islands from Core Data on the main actor (UI-safe)
+            // 3️⃣ Fetch merged teams from Core Data on the main actor (UI-safe)
             await MainActor.run {
                 do {
                     let fetchRequest: NSFetchRequest<Team> = Team.fetchRequest()
                     fetchRequest.predicate = NSPredicate(format: "ANY appDayOfWeeks.day == %@", day.rawValue)
 
-                    let islands = try viewContext.fetch(fetchRequest)
+                    let teams = try viewContext.fetch(fetchRequest)
 
-                    // Prepare array of islands with MatTime children filtered by day
-                    let islandsWithMatTimes: [(Team, [MatTime])] = islands.map { team in
+                    // Prepare array of teams with MatTime children filtered by day
+                    let teamsWithMatTimes: [(Team, [MatTime])] = teams.map { team in
                         let filteredDays = (team.appDayOfWeeks?.compactMap { $0 as? AppDayOfWeek } ?? [])
                             .filter { $0.day == day.rawValue }
 
@@ -1373,22 +1373,22 @@ final class AppDayOfWeekViewModel: ObservableObject {
                         return (team, matTimes)
                     }
 
-                    self.islandsWithMatTimes = islandsWithMatTimes
-                    print("✨ Updated islandsWithMatTimes with \(islandsWithMatTimes.count) islands for day \(day.rawValue).")
+                    self.teamsWithMatTimes = teamsWithMatTimes
+                    print("✨ Updated teamsWithMatTimes with \(teamsWithMatTimes.count) teams for day \(day.rawValue).")
                 } catch {
-                    print("❌ MainActor: Error fetching islands from Core Data: \(error)")
+                    print("❌ MainActor: Error fetching teams from Core Data: \(error)")
                 }
             }
 
             // 4️⃣ Optionally update Firestore documents with any synced day info
-            for (team, ref) in islandsToUpdateInFirestore {
+            for (team, ref) in teamsToUpdateInFirestore {
                 let days = team.appDayOfWeeks?.compactMap { ($0 as? AppDayOfWeek)?.day } ?? []
                 print("    ☁️ Firestore Update: Updating 'days' for \(team.teamName ?? "Unnamed") with \(days)")
                 try await ref.updateData(["days": days])
             }
 
         } catch {
-            print("❌ AppDayOfWeekViewModel: Error fetching islands: \(error.localizedDescription)")
+            print("❌ AppDayOfWeekViewModel: Error fetching teams: \(error.localizedDescription)")
             // Optionally update UI with error message
         }
     }
@@ -1459,9 +1459,9 @@ extension AppDayOfWeek {
         }
         
         // Add 'team' mapping if needed
-        if let pIslandData = data["team"] as? [String: Any] {
+        if let teamData = data["team"] as? [String: Any] {
             let team = Team(context: self.managedObjectContext!)
-            team.configure(pIslandData) // Map Team data
+            team.configure(teamData) // Map Team data
             self.team = team
         }
     }

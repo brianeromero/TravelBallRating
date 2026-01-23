@@ -1,6 +1,6 @@
 //
 //  CustomAuthorizationService.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 5/20/25.
 //

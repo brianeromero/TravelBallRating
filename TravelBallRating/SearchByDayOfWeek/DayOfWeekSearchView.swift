@@ -1,5 +1,5 @@
 // DayOfWeekSearchView.swift
-// Mat_Finder
+// TravelBallRating
 //
 // Created by Brian Romero on 8/21/24.
 //
@@ -79,7 +79,7 @@ struct DayOfWeekSearchView: View {
                 if let userLocation = userLocationMapViewModel.userLocation {
                     print("Using existing user location.")
                     updateRegion(center: userLocation.coordinate)
-                    Task { await updateIslandsAndRegion() }
+                    Task { await updateTeamsAndRegion() }
                 } else {
                     print("No user location yet — requesting location.")
                     userLocationMapViewModel.requestLocation()
@@ -89,14 +89,14 @@ struct DayOfWeekSearchView: View {
                 if let location = newValue {
                     print("User location updated to \(location.coordinate.latitude), \(location.coordinate.longitude)")
                     updateRegion(center: location.coordinate)
-                    Task { await updateIslandsAndRegion() }
+                    Task { await updateTeamsAndRegion() }
                 } else {
                     print("User location is nil.")
                 }
             }
             .onChange(of: selectedTeam) { oldValue, newValue in
                 print("Selected team changed from \(oldValue?.teamName ?? "nil") to \(newValue?.teamName ?? "nil")")
-                updateSelectedIsland(from: newValue)
+                updateSelectedTeam(from: newValue)
             }
         }
     }
@@ -109,25 +109,25 @@ struct DayOfWeekSearchView: View {
     }
     
     private func dayOfWeekChanged() async {
-        await updateIslandsAndRegion()
+        await updateTeamsAndRegion()
     }
     
     private func radiusChanged() async {
-        await updateIslandsAndRegion()
+        await updateTeamsAndRegion()
     }
     
-    private func updateSelectedIsland(from newTeam: Team?) {
+    private func updateSelectedTeam(from newTeam: Team?) {
         guard let newTeam = newTeam else {
-            print("updateSelectedIsland: newTeam is nil.")
+            print("updateSelectedTeam: newTeam is nil.")
             return
         }
         
-        if let matchingIsland = viewModel.teamsWithMatTimes.map({ $0.0 }).first(where: { $0.teamID == newTeam.teamID }) {
+        if let matchingTeam = viewModel.teamsWithMatTimes.map({ $0.0 }).first(where: { $0.teamID == newTeam.teamID }) {
             selectedTeam = matchingTeam
-            print("updateSelectedTeam: Found matching team \(matchingTeam.teamName ?? "") in current selection.")
+            print("updateSelectedTeam: Found matching team \(matchingTeam.teamName) in current selection.")
         } else {
             errorMessage = "Team not found in the current selection."
-            print("updateSelectedIsland: Error - Team \(newTeam.teamName) not found in current selection.")
+            print("updateSelectedTeam: Error - Team \(newTeam.teamName) not found in current selection.")
         }
     }
     
@@ -137,21 +137,21 @@ struct DayOfWeekSearchView: View {
         print("handleTeamTap: Tapped on team \(team.teamName). Showing modal.")
     }
     
-    private func updateIslandsAndRegion() async {
+    private func updateTeamsAndRegion() async {
         guard let selectedDay = selectedDay else {
             errorMessage = "Day of week is not selected."
-            print("updateIslandsAndRegion: Error - Day of week is not selected.")
+            print("updateTeamsAndRegion: Error - Day of week is not selected.")
             return
         }
         
-        print("updateIslandsAndRegion: Fetching islands for day: \(selectedDay)")
-        await viewModel.fetchIslands(forDay: selectedDay)
-        print("updateIslandsAndRegion: Finished fetching islands. ViewModel has \(viewModel.islandsWithMatTimes.count) islands.")
+        print("updateTeamsAndRegion: Fetching teams for day: \(selectedDay)")
+        await viewModel.fetchTeams(forDay: selectedDay)
+        print("updateTeamsAndRegion: Finished fetching teams. ViewModel has \(viewModel.teamsWithMatTimes.count) teams.")
         
         if let location = userLocationMapViewModel.userLocation {
             updateRegion(center: location.coordinate)
         } else {
-            print("updateIslandsAndRegion: User location not available for region update.")
+            print("updateTeamsAndRegion: User location not available for region update.")
         }
     }
     
@@ -160,11 +160,11 @@ struct DayOfWeekSearchView: View {
         
         withAnimation {
             equatableRegionWrapper.region = MapUtils.updateRegion(
-                markers: viewModel.islandsWithMatTimes.map {
+                markers: viewModel.teamsWithMatTimes.map {
                     CustomMapMarker(
                         id: $0.0.teamID ?? UUID(),
                         coordinate: CLLocationCoordinate2D(latitude: $0.0.latitude, longitude: $0.0.longitude),
-                        title: $0.0.teamName ?? "Unnamed team",
+                        title: $0.0.teamName,
                         team: $0.0
                     )
                 },
@@ -196,28 +196,28 @@ struct ErrorView: View {
 struct MapViewContainer: View {
     @Binding var region: EquatableMKCoordinateRegion
     @ObservedObject var appDayOfWeekViewModel: AppDayOfWeekViewModel
-    let handleIslandTap: (Team) -> Void
+    let handleTeamTap: (Team) -> Void
 
     @State private var cameraPosition: MapCameraPosition
 
     init(
         region: Binding<EquatableMKCoordinateRegion>,
         appDayOfWeekViewModel: AppDayOfWeekViewModel,
-        handleIslandTap: @escaping (Team) -> Void
+        handleTeamTap: @escaping (Team) -> Void
     ) {
         _region = region
         self.appDayOfWeekViewModel = appDayOfWeekViewModel
-        self.handleIslandTap = handleIslandTap
+        self.handleTeamTap = handleTeamTap
         _cameraPosition = State(initialValue: .region(region.wrappedValue.region))
     }
 
     var body: some View {
-        let currentIslands = appDayOfWeekViewModel.teamWithMatTimes.map { $0.0 }
+        let currentTeams = appDayOfWeekViewModel.teamsWithMatTimes.map { $0.0 }
 
         Map(position: $cameraPosition) {
-            ForEach(currentIslands) { team in
+            ForEach(currentTeams) { team in
                 Annotation("", coordinate: CLLocationCoordinate2D(latitude: team.latitude, longitude: team.longitude), anchor: .center) {
-                    IslandAnnotationView(team: team) {
+                    TeamAnnotationView(team: team) {
                         handleTeamTap(team)
                     }
                 }
@@ -235,21 +235,21 @@ struct MapViewContainer: View {
 
         .onAppear {
             print("MapViewContainer.onAppear: Map container appeared.")
-            print("  - \(currentIslands.count) islands loaded.")
+            print("  - \(currentTeams.count) teams loaded.")
         }
     }
 }
 
 
 
-// MARK: - IslandAnnotationView
+// MARK: - TeamAnnotationView
 
 struct TeamAnnotationView: View {
     let team: Team
-    let handleIslandTap: () -> Void
+    let handleTeamTap: () -> Void
 
     var body: some View {
-        Button(action: handleIslandTap) {
+        Button(action: handleTeamTap) {
             VStack(spacing: 4) {
                 Text(team.teamName)
                     .font(.caption2)

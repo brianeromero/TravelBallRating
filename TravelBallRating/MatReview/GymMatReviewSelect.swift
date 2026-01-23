@@ -1,6 +1,6 @@
 //
 //  TeamPracticereReviewSelect.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 8/23/24.
 //
@@ -146,7 +146,7 @@ class TeamPracticeReviewSelectViewModel: ObservableObject {
 
         DispatchQueue.global(qos: .userInitiated).async {
             let lowercasedQuery = self.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            let filteredTeams = self.filterIslands(teams, query: lowercasedQuery)
+            let filteredTeams = self.filterTeams(teams, query: lowercasedQuery)
 
             DispatchQueue.main.async {
                 self.filteredTeams = filteredTeams

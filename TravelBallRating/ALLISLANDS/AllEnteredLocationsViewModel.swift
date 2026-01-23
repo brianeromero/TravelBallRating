@@ -1,6 +1,6 @@
 //
 //  AllEnteredLocationsViewModel.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 6/29/24.
 //
@@ -13,8 +13,8 @@ import CoreLocation
 import MapKit
 
 final class AllEnteredLocationsViewModel: NSObject, ObservableObject {
-    @Published var allIslands: [Team] = []
-    @Published var pirateMarkers: [CustomMapMarker] = []
+    @Published var allTeams: [Team] = []
+    @Published var teamMarkers: [CustomMapMarker] = []
     @Published var errorMessage: String?
     @Published var isDataLoaded = false
     @Published var region: MapCameraPosition = .automatic
@@ -36,21 +36,21 @@ final class AllEnteredLocationsViewModel: NSObject, ObservableObject {
             let result = self.dataManager.fetchTeams()
             DispatchQueue.main.async {
                 switch result {
-                case .success(let islands):
+                case .success(let teams):
                     self.allTeams = teams
-                    self.pirateMarkers = teams.map { team in
+                    self.teamMarkers = teams.map { team in
                         CustomMapMarker(
                             id: team.teamID ?? UUID(),
                             coordinate: CLLocationCoordinate2D(latitude: team.latitude, longitude: team.longitude),
-                            title: team.teamName ?? "Unknown Team",
+                            title: team.teamName,
                             team: team
                         )
                     }
                     self.isDataLoaded = true
                     self.setRegionToFitMarkersOrDefault()
                 case .failure(let error):
-                    self.errorMessage = "Failed to load pirate islands: \(error.localizedDescription)"
-                    self.pirateMarkers = []
+                    self.errorMessage = "Failed to load teams: \(error.localizedDescription)"
+                    self.teamMarkers = []
                     self.region = .automatic
                     self.isDataLoaded = true
                 }
@@ -62,8 +62,8 @@ final class AllEnteredLocationsViewModel: NSObject, ObservableObject {
     func setRegionToFitMarkersOrDefault() {
         guard !hasSetInitialRegion else { return }
 
-        if !pirateMarkers.isEmpty {
-            let coordinates = pirateMarkers.map { $0.coordinate }
+        if !teamMarkers.isEmpty {
+            let coordinates = teamMarkers.map { $0.coordinate }
             let mkRegion = MapUtils.calculateRegionToFit(coordinates: coordinates)
             region = .region(mkRegion)
         } else {
@@ -85,7 +85,7 @@ final class AllEnteredLocationsViewModel: NSObject, ObservableObject {
     }
 
     func logTileInformation() {
-        for marker in pirateMarkers {
+        for marker in teamMarkers {
             print("Marker ID: \(marker.id), Coordinate: \(marker.coordinate), Title: \(marker.title ?? "Unknown")")
         }
     }

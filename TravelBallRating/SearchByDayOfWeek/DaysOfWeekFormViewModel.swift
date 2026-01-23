@@ -1,6 +1,6 @@
 //
 //  DaysOfWeekFormViewModel.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/14/25.
 //
@@ -18,8 +18,8 @@ class DaysOfWeekFormViewModel: ObservableObject {
 
     private var debounceTimer: Timer?
 
-    init(initialIslands: [Team]) {
-        self.filteredTeams = initialIslands
+    init(initialTeams: [Team]) {
+        self.filteredTeams = initialTeams
     }
 
     func updateFilteredTeams(with teams: FetchedResults<Team>) {

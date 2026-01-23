@@ -1,5 +1,5 @@
 // AppDayOfWeekRepository.swift
-// Mat_Finder
+// TravelBallRating
 //
 // Created by Brian Romero on 6/25/24.
 
@@ -37,7 +37,7 @@ class AppDayOfWeekRepository: ObservableObject {
         return AppDayOfWeekRepository(persistenceController: persistenceController)
     }()
     
-    func setSelectedIsland(_ team: Team) {
+    func setSelectedTeam(_ team: Team) {
         self.selectedTeam = team
     }
     
@@ -46,7 +46,7 @@ class AppDayOfWeekRepository: ObservableObject {
     }
     
     // Modify other functions to use the shared PersistenceController instance instead of the local persistenceController variable
-    func performActionThatDependsOnIslandAndDay() {
+    func performActionThatDependsOnTeamAndDay() {
         guard let team = selectedTeam, let appDay = currentAppDayOfWeek else {
             print("Selected team or current day of week is not set.")
             return
@@ -254,18 +254,18 @@ class AppDayOfWeekRepository: ObservableObject {
         print("AppDayOfWeekRepository.fetchSchedules - START")
         
         let backgroundContext = PersistenceController.shared.container.newBackgroundContext()
-        let islandObjectID = team.objectID
+        let teamObjectID = team.objectID
 
         return await withCheckedContinuation { continuation in
             backgroundContext.perform {
                 do {
-                    guard let islandInContext = try backgroundContext.existingObject(with: islandObjectID) as? Team else {
+                    guard let teamInContext = try backgroundContext.existingObject(with: teamObjectID) as? Team else {
                         continuation.resume(returning: [])
                         return
                     }
 
                     let fetchRequest: NSFetchRequest<AppDayOfWeek> = AppDayOfWeek.fetchRequest()
-                    fetchRequest.predicate = NSPredicate(format: "team == %@", islandInContext)
+                    fetchRequest.predicate = NSPredicate(format: "team == %@", teamInContext)
 
                     let schedules = try backgroundContext.fetch(fetchRequest)
                     print("AppDayOfWeekRepository.fetchSchedules - END - Fetched \(schedules.count) schedules")
@@ -285,19 +285,19 @@ class AppDayOfWeekRepository: ObservableObject {
         print("AppDayOfWeekRepository.fetchSchedules (with day) - START")
         
         let backgroundContext = PersistenceController.shared.container.newBackgroundContext()
-        let islandObjectID = team.objectID
+        let teamObjectID = team.objectID
         let dayValue = day.rawValue
 
         return await withCheckedContinuation { continuation in
             backgroundContext.perform {
                 do {
-                    guard let islandInContext = try backgroundContext.existingObject(with: islandObjectID) as? Team else {
+                    guard let teamInContext = try backgroundContext.existingObject(with: teamObjectID) as? Team else {
                         continuation.resume(returning: [])
                         return
                     }
 
                     let fetchRequest: NSFetchRequest<AppDayOfWeek> = AppDayOfWeek.fetchRequest()
-                    fetchRequest.predicate = NSPredicate(format: "team == %@ AND day == %@", islandInContext, dayValue)
+                    fetchRequest.predicate = NSPredicate(format: "team == %@ AND day == %@", teamInContext, dayValue)
 
                     let schedules = try backgroundContext.fetch(fetchRequest)
                     print("AppDayOfWeekRepository.fetchSchedules (with day) - END - Fetched \(schedules.count) schedules")
@@ -334,11 +334,11 @@ class AppDayOfWeekRepository: ObservableObject {
     }
     
     func fetchTeams(day: String, radius: Double, locationManager: UserLocationMapViewModel) -> [Team] {
-        var fetchedIslands: [Teams] = []
+        var fetchedTeams: [Teams] = []
         
         guard let userLocation = locationManager.getCurrentUserLocation() else {
             print("Failed to get current user location.")
-            return fetchedIslands
+            return fetchedTeams
         }
         
         let fetchRequest: NSFetchRequest<AppDayOfWeek> = AppDayOfWeek.fetchRequest()
@@ -355,13 +355,13 @@ class AppDayOfWeekRepository: ObservableObject {
                 let distance = locationManager.calculateDistance(from: userLocation, to: CLLocation(latitude: team.latitude, longitude: team.longitude))
                 print("Distance to Team: \(distance)")
                 
-                fetchedIslands.append(team)
+                fetchedTeams.append(team)
             }
         } catch {
             print("Failed to fetch AppDayOfWeek: \(error.localizedDescription)")
         }
         
-        return fetchedIslands
+        return fetchedTeams
     }
     
     
@@ -372,7 +372,7 @@ class AppDayOfWeekRepository: ObservableObject {
             return []
         }
         
-        var fetchedIslands: [Team] = []
+        var fetchedTeams: [Team] = []
         
         let fetchRequest = AppDayOfWeek.fetchRequest()
         fetchRequest.entity = NSEntityDescription.entity(forEntityName: "AppDayOfWeek", in: PersistenceController.shared.container.viewContext)!
@@ -383,7 +383,7 @@ class AppDayOfWeekRepository: ObservableObject {
             let appDayOfWeeks = try PersistenceController.shared.container.viewContext.fetch(fetchRequest)
             print("Fetched \(appDayOfWeeks.count) AppDayOfWeek objects")
             
-            fetchedIslands = appDayOfWeeks.compactMap { appDayOfWeek in
+            fetchedTeams = appDayOfWeeks.compactMap { appDayOfWeek in
                 guard let team = appDayOfWeek.team,
                       appDayOfWeek.day.lowercased() == day.displayName.lowercased(),
                       appDayOfWeek.matTimes?.count ?? 0 > 0 else { return nil }
@@ -391,16 +391,16 @@ class AppDayOfWeekRepository: ObservableObject {
             }
         } catch {
             print("Failed to fetch AppDayOfWeek: \(error.localizedDescription)")
-            errorMessage = "Error fetching pirate islands: \(error.localizedDescription)"
+            errorMessage = "Error fetching teams: \(error.localizedDescription)"
         }
         
-        print("Fetched \(fetchedIslands.count) pirate islands")
-        return fetchedIslands
+        print("Fetched \(fetchedTeams.count) teams")
+        return fetchedTeams
     }
     
    
-    // MARK: - New fetchAllIslands Method
-    func fetchAllIslands(forDay day: String) async throws -> [NSManagedObjectID] {
+    // MARK: - New fetchAllTeams Method
+    func fetchAllTeams(forDay day: String) async throws -> [NSManagedObjectID] {
         let backgroundContext = PersistenceController.shared.container.newBackgroundContext()
         
         let dayLowercased = day.lowercased() // Sendable primitive
@@ -412,7 +412,7 @@ class AppDayOfWeekRepository: ObservableObject {
                     fetchRequest.predicate = NSPredicate(format: "ANY appDayOfWeeks.day == %@", dayLowercased)
                     fetchRequest.relationshipKeyPathsForPrefetching = ["appDayOfWeeks", "appDayOfWeeks.matTimes"]
                     
-                    let islands = try backgroundContext.fetch(fetchRequest)
+                    let teams = try backgroundContext.fetch(fetchRequest)
                     
                     let filteredTeams = teams.filter { team in
                         guard let appDayOfWeeks = team.appDayOfWeeks as? Set<AppDayOfWeek> else { return false }
@@ -422,7 +422,7 @@ class AppDayOfWeekRepository: ObservableObject {
                         }
                     }
                     
-                    print("Fetched and filtered islands count: \(filteredTeams.count). Returning ObjectIDs.")
+                    print("Fetched and filtered teams count: \(filteredTeams.count). Returning ObjectIDs.")
                     continuation.resume(returning: filteredTeams.map { $0.objectID })
                 } catch {
                     continuation.resume(throwing: error)
@@ -434,18 +434,18 @@ class AppDayOfWeekRepository: ObservableObject {
     // MARK: - NEW: fetchSchedulesObjectIDs for a specific team
     func fetchSchedulesObjectIDs(for team: Team) async -> [NSManagedObjectID] {
         let backgroundContext = PersistenceController.shared.container.newBackgroundContext()
-        let islandObjectID = team.objectID
+        let teamObjectID = team.objectID
         
         return await withCheckedContinuation { continuation in
             backgroundContext.perform {
                 do {
-                    guard let islandInContext = try backgroundContext.existingObject(with: islandObjectID) as? Team else {
+                    guard let teamInContext = try backgroundContext.existingObject(with: teamObjectID) as? Team else {
                         continuation.resume(returning: [])
                         return
                     }
                     
                     let request: NSFetchRequest<AppDayOfWeek> = AppDayOfWeek.fetchRequest()
-                    request.predicate = NSPredicate(format: "team == %@", islandInContext)
+                    request.predicate = NSPredicate(format: "team == %@", teamInContext)
                     request.returnsObjectsAsFaults = false
                     request.includesPropertyValues = false // we only need objectIDs
                     

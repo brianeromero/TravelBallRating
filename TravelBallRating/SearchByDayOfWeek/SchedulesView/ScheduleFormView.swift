@@ -1,6 +1,6 @@
 //
 //  ScheduleFormView.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/30/24.
 //
@@ -46,15 +46,15 @@ extension MatTime {
 struct ScheduleFormView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
-    let islands: [Team]
+    let teams: [Team]
 
     @State private var selectedTeamID: UUID?
 
     var selectedTeam: Team? {
-        islands.first { $0.teamID == selectedTeamID }
+        teams.first { $0.teamID == selectedTeamID }
     }
 
-    let initialSelectedIsland: Team?
+    let initialSelectedTeam: Team?
 
     @Binding var matTimes: [MatTime]
 
@@ -229,7 +229,7 @@ private extension ScheduleFormView {
     func selectTeamAndDay(_ team: Team, _ day: DayOfWeek) async -> AppDayOfWeek? {
         let request: NSFetchRequest<AppDayOfWeek> = AppDayOfWeek.fetchRequest()
         request.predicate = NSPredicate(
-            format: "team.islandID == %@ AND day == %@",
+            format: "team.teamID == %@ AND day == %@",
             team.teamID! as CVarArg,
             day.rawValue
         )

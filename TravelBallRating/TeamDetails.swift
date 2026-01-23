@@ -1,6 +1,6 @@
 //
 //  TeamDetails.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 
 import Foundation
@@ -62,6 +62,19 @@ public class TeamDetails: ObservableObject, Equatable {
     // ADD THIS NEW PROPERTY:
     @Published var teamID: UUID? // This is crucial for linking to an existing Team
 
+    
+    @Published var sport: SportType? = nil
+    @Published var gender: GenderType? = nil
+    @Published var ageGroup: AgeGroupType? = nil
+
+
+    @Published var coachName: String = ""
+    @Published var contactEmail: String = ""
+    
+    
+    @Published var customSportName: String = ""
+
+    
     // MARK: - Computed Properties
     var teamLocation: String {
         let locationComponents = requiredAddressFields.compactMap { field -> String? in
@@ -231,4 +244,15 @@ extension TeamDetails: CustomStringConvertible {
         - Required Fields: \(requiredAddressFields.map { "\($0)" }.joined(separator: ", "))
         """
     }
+    
+    var resolvedSportName: String {
+        if sport == .other && !customSportName.isEmpty {
+            return customSportName
+        } else {
+            return sport?.rawValue ?? ""
+        }
+    }
+
+
+    
 }

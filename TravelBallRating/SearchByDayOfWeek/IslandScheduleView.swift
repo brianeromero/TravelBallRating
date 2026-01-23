@@ -1,6 +1,6 @@
 //
-//  IslandScheduleView.swift
-//  Mat_Finder
+//  TeamScheduleView.swift
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/8/24.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 import CoreData
 
-struct IslandScheduleView: View {
+struct TeamScheduleView: View {
     @ObservedObject var viewModel: AppDayOfWeekViewModel
     var team: Team?
 
@@ -126,49 +126,3 @@ struct IslandScheduleView: View {
         .cornerRadius(8)
     }
 }
-
-/*
-struct IslandScheduleView_Previews: PreviewProvider {
-    static var previews: some View {
-        let persistenceController = PersistenceController.preview
-        
-        // Create a mock Team
-        let mockIsland = Team(context: persistenceController.container.viewContext)
-        mockIsland.teamName = "Mock team"
-        
-        // Create a mock EnterZipCodeViewModel
-        let enterZipCodeViewModel = EnterZipCodeViewModel(
-            repository: AppDayOfWeekRepository.shared,
-            persistenceController: persistenceController
-        )
-        
-        // Create a mock AppDayOfWeekViewModel with mock data
-        let viewModel = AppDayOfWeekViewModel(
- selectedTeam: mockIsland,
-            repository: MockAppDayOfWeekRepository(persistenceController: persistenceController),
-            enterZipCodeViewModel: enterZipCodeViewModel
-        )
-        
-        // Populate viewModel with mock AppDayOfWeek data
-        for day in DayOfWeek.allCases {
-            let mockSchedule = AppDayOfWeek(context: persistenceController.container.viewContext)
-            let mockMatTime = MatTime(context: persistenceController.container.viewContext)
-            mockMatTime.time = "10:00 AM"
-            mockMatTime.gi = true
-            mockMatTime.noGi = false
-            mockMatTime.openMat = true
-            mockMatTime.restrictions = false
-            mockMatTime.restrictionDescription = nil
-            mockMatTime.goodForBeginners = true
-            mockMatTime.kids = false
-            mockSchedule.day = day.displayName
-            mockSchedule.matTimes = [mockMatTime] as NSSet
-            viewModel.appDayOfWeekList.append(mockSchedule)
-        }
-        
-        return NavigationView {
-            IslandScheduleView(viewModel: viewModel, team: mockIsland)
-        }
-    }
-}
-*/

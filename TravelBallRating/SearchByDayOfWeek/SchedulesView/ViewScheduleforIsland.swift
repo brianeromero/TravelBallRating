@@ -1,6 +1,6 @@
 //
-//  ViewScheduleForIsland.swift
-//  Mat_Finder
+//  ViewScheduleForTeam.swift
+//  TravelBallRating
 //
 //  Created by Brian Romero on 8/28/24.
 //
@@ -10,7 +10,7 @@ import SwiftUI
 import CoreData
 
 
-struct ViewScheduleForIsland: View {
+struct ViewScheduleForTeam: View {
     @ObservedObject var viewModel: AppDayOfWeekViewModel
     let team: Team
     
@@ -18,7 +18,7 @@ struct ViewScheduleForIsland: View {
         VStack(spacing: 0) {
 
             // MARK: - Header
-            Text("Schedules for \(team.teamName ?? "Unknown team")")
+            Text("Schedules for \(team.teamName)")
                 .font(.title)
                 .padding()
 

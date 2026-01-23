@@ -1,6 +1,6 @@
 //
 //  DeleteRecordView.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 12/17/24.
 //

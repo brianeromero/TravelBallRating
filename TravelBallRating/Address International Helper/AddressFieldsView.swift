@@ -10,7 +10,7 @@ import SwiftUI
 
 struct AddressFieldsView: View {
     let requiredFields: [AddressFieldType]
-    @Binding var teamDetails: TeamDetails
+    @ObservedObject var teamDetails: TeamDetails
 
     var body: some View {
         VStack {
@@ -95,15 +95,5 @@ struct AddressFieldsView: View {
                 .frame(height: 100)
                 .border(Color.gray)
         }
-    }
-}
-
-struct AddressFieldsView_Previews: PreviewProvider {
-    static var previews: some View {
-        AddressFieldsView(
-            requiredFields: [.street, .city, .state, .postalCode],
-            teamDetails: .constant(TeamDetails())
-        )
-        .previewLayout(.sizeThatFits)
     }
 }

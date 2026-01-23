@@ -10,8 +10,8 @@ import SwiftUI
 
 struct AddressFieldView: View {
     let field: AddressField
-    @Binding var teamDetails: TeamDetails
-    
+    @ObservedObject var teamDetails: TeamDetails
+
     var body: some View {
         VStack(alignment: .leading) {
             Text(field.rawValue.capitalized)
@@ -19,12 +19,12 @@ struct AddressFieldView: View {
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
                 .onChange(of: binding(for: field).wrappedValue) { oldValue, newValue in
-                    print("Field \(field.rawValue) updated to: \(newValue)")  // Log field changes
+                    print("Field \(field.rawValue) updated to: \(newValue)")
                 }
         }
     }
-    
+
     func binding(for field: AddressField) -> Binding<String> {
-        return AddressBindingHelper.binding(for: field, teamDetails: $teamDetails)
+        AddressBindingHelper.binding(for: field, teamDetails: teamDetails)
     }
 }

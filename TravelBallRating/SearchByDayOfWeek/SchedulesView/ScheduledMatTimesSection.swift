@@ -1,6 +1,6 @@
 //
 //  ScheduledMatTimesSection.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 8/26/24.
 //
@@ -159,20 +159,20 @@ struct ScheduledMatTimesSection: View {
     }
 
     func filterMatTimes(_ matTimes: [MatTime], for day: DayOfWeek, and team: Team) -> [MatTime] {
-        guard let islandUUID = team.teamID else { return [] }
-        let normalized = islandUUID.uuidString.replacingOccurrences(of: "-", with: "")
+        guard let teamUUID = team.teamID else { return [] }
+        let normalized = teamUUID.uuidString.replacingOccurrences(of: "-", with: "")
 
         return matTimes.filter { matTime in
             guard let appDay = matTime.appDayOfWeek,
                   let team = appDay.team,
-                  let pIslandUUID = team.teamID
+                  let teamUUID = team.teamID
             else { return false }
 
-            let pNorm = pIslandUUID.uuidString.replacingOccurrences(of: "-", with: "")
-            let sameIsland = (normalized == pNorm)
+            let pNorm = teamUUID.uuidString.replacingOccurrences(of: "-", with: "")
+            let sameTeam = (normalized == pNorm)
             let sameDay = appDay.day.caseInsensitiveCompare(day.rawValue) == .orderedSame
 
-            return sameIsland && sameDay
+            return sameTeam && sameDay
         }
     }
 

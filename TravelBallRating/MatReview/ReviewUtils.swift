@@ -1,6 +1,6 @@
 //
 //  ReviewUtils.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 8/26/24.
 //
@@ -20,13 +20,13 @@ struct ReviewUtils {
 
         return await context.perform {
             // Rehydrate the team inside the context's queue
-            guard let islandInContext = try? context.existingObject(with: teamID) as? Team else {
+            guard let teamInContext = try? context.existingObject(with: teamID) as? Team else {
                 os_log("❌ Failed to rehydrate Team (caller: %@)", log: logger, type: .error, callerFunction)
                 return 0
             }
 
             let fetchRequest: NSFetchRequest<Review> = NSFetchRequest<Review>(entityName: "Review")
-            fetchRequest.predicate = NSPredicate(format: "team == %@", islandInContext)
+            fetchRequest.predicate = NSPredicate(format: "team == %@", teamInContext)
 
             do {
                 let reviewsArray = try context.fetch(fetchRequest)
@@ -44,12 +44,12 @@ struct ReviewUtils {
     
     
     static func fetchAverageRating(
-        forObjectID islandObjectID: NSManagedObjectID,
+        forObjectID teamObjectID: NSManagedObjectID,
         in context: NSManagedObjectContext,
         callerFunction: String = #function
     ) async -> Int16 {
         return await context.perform {
-            guard let team = try? context.existingObject(with: islandObjectID) as? Team else {
+            guard let team = try? context.existingObject(with: teamObjectID) as? Team else {
                 os_log("❌ Failed to rehydrate Team (caller: %@)", log: logger, type: .error, callerFunction)
                 return 0
             }

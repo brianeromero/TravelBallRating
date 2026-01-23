@@ -1,6 +1,6 @@
 //
 //  ViewReviewSearch.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 9/20/24.
 //
@@ -59,7 +59,7 @@ struct ViewReviewSearch: View {
                 ForEach(viewModel.searchQuery.isEmpty ? Array(teams) : viewModel.filteredTeams, id: \.objectID) { team in // Use .objectID for stable identity
                     // Changed to NavigationLink(value: ...) to push onto the shared path
                     NavigationLink(value: AppScreen.viewAllReviews(team.objectID.uriRepresentation().absoluteString)) {
-                        islandRowContent(team: team)
+                        teamRowContent(team: team)
                     }
                 }
             }

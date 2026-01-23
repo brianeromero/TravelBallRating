@@ -1,6 +1,6 @@
 //
 //  EditMatTimeView.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 5/30/25.
 //

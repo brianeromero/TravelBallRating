@@ -1,6 +1,6 @@
 //
 //  AppDayOfWeekFormView.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/30/24.
 //
@@ -22,7 +22,7 @@ struct AppDayOfWeekFormView: View {
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Team.teamName, ascending: true)],
         animation: .default
-    ) private var islands: FetchedResults<Team>
+    ) private var teams: FetchedResults<Team>
     
     @ObservedObject var viewModel: AppDayOfWeekViewModel
     
@@ -34,7 +34,7 @@ struct AppDayOfWeekFormView: View {
                 TextField("App Day of Week ID", text: $appDayOfWeekID)
                 
                 Picker("Select D team", selection: $selectedTeam) {
-                    ForEach(islands, id: \.self) { team in
+                    ForEach(teams, id: \.self) { team in
                         Text(team.teamName).tag(team as Team?)
                     }
                 }

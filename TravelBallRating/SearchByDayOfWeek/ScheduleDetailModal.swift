@@ -1,5 +1,5 @@
 //  ScheduleDetailModal.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/8/24.
 //

@@ -1,6 +1,6 @@
 /*//
 //  AppDayOfWeekCell.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/11/24.
 //

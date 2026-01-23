@@ -1,6 +1,6 @@
 //
 //  EnterZipCodeViewModel.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 6/29/24.
 //
@@ -93,7 +93,7 @@ class EnterZipCodeViewModel: ObservableObject {
                         team: nil
                     )
 
-                    // Fetch nearby islands
+                    // Fetch nearby teams
                     self.fetchTeamsNear(
                         CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude),
                         within: currentRadius * 1609.34
@@ -123,8 +123,8 @@ class EnterZipCodeViewModel: ObservableObject {
         )
 
         do {
-            let islands = try context.fetch(fetchRequest)
-            let filteredTeams = islands.filter { team in
+            let teams = try context.fetch(fetchRequest)
+            let filteredTeams = teams.filter { team in
                 let teamLocation = CLLocation(latitude: team.latitude, longitude: team.longitude)
                 return teamLocation.distance(from: location) <= radius
             }
@@ -138,7 +138,7 @@ class EnterZipCodeViewModel: ObservableObject {
                 )
             }
         } catch {
-            print("Error fetching islands: \(error.localizedDescription)")
+            print("Error fetching teams: \(error.localizedDescription)")
         }
     }
 

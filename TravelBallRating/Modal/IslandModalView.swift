@@ -1,6 +1,6 @@
 //
 //  TeamModalView.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 8/29/24.
 //

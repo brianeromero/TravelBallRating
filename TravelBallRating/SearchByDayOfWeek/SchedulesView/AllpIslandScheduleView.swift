@@ -1,6 +1,6 @@
 //
-//  AllpIslandScheduleView.swift
-//  Mat_Finder
+//  AllteamScheduleView.swift
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/12/24.
 //
@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct AllpIslandScheduleView: View {
+struct pTeamScheduleView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @ObservedObject var viewModel: AppDayOfWeekViewModel
 
@@ -96,11 +96,11 @@ struct AllpIslandScheduleView: View {
     }
 
     var sortedDays: [DayOfWeek] {
-        viewModel.islandSchedules.keys.sorted { $0.rawValue < $1.rawValue }
+        viewModel.teamSchedules.keys.sorted { $0.rawValue < $1.rawValue }
     }
 
     func filteredSchedules(for day: DayOfWeek) -> [(Team, [MatTime])] {
-        guard let schedules = viewModel.islandSchedules[day] else {
+        guard let schedules = viewModel.teamSchedules[day] else {
             return []
         }
         return schedules.filter { !$0.1.filter { $0.appDayOfWeek != nil }.isEmpty }
@@ -121,7 +121,7 @@ struct AllpIslandScheduleView: View {
     private func deleteMatTimes(offsets: IndexSet) {
         withAnimation {
             offsets.map { sortedDays[$0] }.forEach { day in
-                guard let schedules = viewModel.islandSchedules[day] else { return }
+                guard let schedules = viewModel.teamSchedules[day] else { return }
                 schedules.forEach { team, matTimes in
                     matTimes.enumerated().filter { offsets.contains($0.offset) }.forEach { matTime in
                         viewContext.delete(matTime.element)

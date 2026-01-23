@@ -63,7 +63,7 @@ public class TeamViewModel: ObservableObject {
     }
 
 
-    // MARK: - Create Pirate Team
+    // MARK: - Create Team
     @MainActor
     func createTeam(
         teamDetails: TeamDetails,

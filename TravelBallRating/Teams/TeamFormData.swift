@@ -49,6 +49,7 @@ enum AgeGroupType: String, CaseIterable, Identifiable {
     case u16 = "16U"
     case u17 = "17U"
     case u18 = "18U"
+    case other 
     
     var id: String { rawValue }
 }

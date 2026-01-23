@@ -1,6 +1,6 @@
 //
 //  AddNewMatTimeSection.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 8/1/24.
 //
@@ -13,11 +13,11 @@ import FirebaseFirestore
 
 
 struct AddNewMatTimeSection: View {
-    @Binding var selectedIslandID: UUID?          // The source of truth
-    let islands: [Team]                  // All available islands
+    @Binding var selectedTeamID: UUID?          // The source of truth
+    let teams: [Team]                  // All available teams
 
     var selectedTeam: Team? {
-        islands.first { $0.teamID == selectedTeamID }
+        teams.first { $0.teamID == selectedTeamID }
     }
     
     @Binding var selectedDay: DayOfWeek?
@@ -54,8 +54,8 @@ struct AddNewMatTimeSection: View {
     
     // MARK: - Custom initializer
     init(
-        selectedIslandID: Binding<UUID?>,         // pass the binding for selectedIslandID
-        islands: [Team],                 // pass the array of islands
+        selectedTeamID: Binding<UUID?>,         // pass the binding for selectedTeamID
+        teams: [Team],                 // pass the array of teams
         selectedDay: Binding<DayOfWeek?>,
         viewModel: AppDayOfWeekViewModel,
         selectTeamAndDay: @escaping (Team, DayOfWeek) async -> AppDayOfWeek?,
@@ -63,8 +63,8 @@ struct AddNewMatTimeSection: View {
         alertTitle: Binding<String>,
         alertMessage: Binding<String>
     ) {
-        self._selectedIslandID = selectedIslandID    // ✅ initialize the binding
-        self.islands = islands                       // ✅ initialize stored array
+        self._selectedTeamID = selectedTeamID    // ✅ initialize the binding
+        self.teams = teams                       // ✅ initialize stored array
         self._selectedDay = selectedDay
         self.viewModel = viewModel
         self.selectTeamAndDay = selectTeamAndDay
@@ -246,18 +246,18 @@ struct AddNewMatTimeSection: View {
             if let existingAppDayOfWeek = viewModel.selectedAppDayOfWeek {
                 appDayOfWeekToUseID = existingAppDayOfWeek.objectID
             } else {
-                let selectedIslandID = selectedTeam.objectID
+                let selectedTeamID = selectedTeam.objectID
                 let backgroundContext = PersistenceController.shared.container.newBackgroundContext()
                 backgroundContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 
                 // Capture safe strings before entering performAndWait
-                let teamNameSafe = selectedTeam.teamName ?? "UnknownTeam"
+                let teamNameSafe = selectedTeam.teamName
                 let dayNameSafe = selectedDay.rawValue // or selectedDay.displayName
 
                 // Perform only synchronous background Core Data work here
                 appDayOfWeekToUseID = try backgroundContext.performAndWait {
-                    guard let islandOnBG = try? backgroundContext.existingObject(
-                        with: selectedIslandID
+                    guard let teamOnBG = try? backgroundContext.existingObject(
+                        with: selectedTeamID
                     ) as? Team else {
                         throw NSError(
                             domain: "CoreDataError",
@@ -280,7 +280,7 @@ struct AddNewMatTimeSection: View {
 
                     newAppDayOfWeek.day = dayNameSafe
                     newAppDayOfWeek.name = humanReadableID
-                    newAppDayOfWeek.team = islandOnBG
+                    newAppDayOfWeek.team = teamOnBG
                     newAppDayOfWeek.createdTimestamp = Date()
 
                     try backgroundContext.save()

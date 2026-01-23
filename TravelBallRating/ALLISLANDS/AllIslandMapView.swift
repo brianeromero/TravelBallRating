@@ -1,5 +1,5 @@
 // AllTeamMapView.swift
-// Mat_Finder
+// TravelBallRating
 // Created by Brian Romero on 6/26/24.
 
 import SwiftUI
@@ -44,7 +44,7 @@ struct ConsolidatedTeamMapView: View {
     // ⭐️ NEW: Use MapCameraPosition for iOS 17 Map.
     @State private var cameraPosition: MapCameraPosition = .region(defaultRegion)
     
-    @State private var pirateMarkers: [CustomMapMarker] = []
+    @State private var teamMarkers: [CustomMapMarker] = []
     @State private var showModal = false
     @State private var selectedTeam: Team?
     @State private var selectedAppDayOfWeek: AppDayOfWeek?
@@ -114,7 +114,7 @@ struct ConsolidatedTeamMapView: View {
             UserAnnotation()
             
             // ⭐️ NEW: Annotation replaces MapAnnotation and uses ForEach
-            ForEach(pirateMarkers) { marker in
+            ForEach(teamMarkers) { marker in
                 Annotation(
                     "", // empty string, MapKit shows nothing by default
                     coordinate: marker.coordinate,
@@ -132,7 +132,7 @@ struct ConsolidatedTeamMapView: View {
         .frame(height: 400)
         .padding()
         .onAppear {
-            log.debug("🗺️ Map view appeared with \(pirateMarkers.count) markers.")
+            log.debug("🗺️ Map view appeared with \(teamMarkers.count) markers.")
             // Initial marker load is required here or in onAppear()
             updateMarkers(for: cameraPosition.region ?? defaultRegion)
         }
@@ -251,7 +251,7 @@ struct ConsolidatedTeamMapView: View {
 
         // A better filtering approach might be distance-based for accuracy,
         // but this span-based filtering is kept to match your original intent.
-        pirateMarkers = teams.filter { team in
+        teamMarkers = teams.filter { team in
             (team.latitude >= minLat && team.latitude <= maxLat) &&
             (team.longitude >= minLon && team.longitude <= maxLon)
         }.map { team in
@@ -262,6 +262,6 @@ struct ConsolidatedTeamMapView: View {
                 team: team
             )
         }
-        log.debug("Markers updated. Found \(self.pirateMarkers.count) teams in region.")
+        log.debug("Markers updated. Found \(self.teamMarkers.count) teams in region.")
     }
 }

@@ -1,6 +1,6 @@
 //
 //  CustomMarkerView.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 6/26/24.
 //
@@ -34,7 +34,7 @@ struct CustomMarkerView_Previews: PreviewProvider {
 struct CustomMapMarkerPreview: View {
     // This is a simple mock team for the preview.
     // In your actual app, 'Team' would come from your data models.
-    let previewIsland = MockTeam.example
+    let previewTeam = MockTeam.example
 
     // @State is needed for MapCameraPosition in a preview
     @State private var cameraPosition: MapCameraPosition = {

@@ -1,5 +1,5 @@
 // AllEnteredLocations.swift
-// Mat_Finder
+// TravelBallRating
 //
 // Created by Brian Romero on 6/17/24.
 
@@ -49,11 +49,11 @@ struct AllEnteredLocations: View {
                 ProgressView("Loading Open Mats...").padding()
             } else if let error = viewModel.errorMessage {
                 Text(error).foregroundColor(.red).padding()
-            } else if viewModel.pirateMarkers.isEmpty {
+            } else if viewModel.teamMarkers.isEmpty {
                 Text("No Open Mats found.").padding()
             } else {
                 Map(position: $viewModel.region, interactionModes: .all) {
-                    ForEach(viewModel.pirateMarkers) { marker in
+                    ForEach(viewModel.teamMarkers) { marker in
                         if let team = marker.team {
                             Annotation(
                                 "", // empty string, nothing will show
@@ -96,7 +96,7 @@ struct AllEnteredLocations: View {
             viewModel.fetchTeams()
         }
         .floatingModal(isPresented: $showModal) {
-            IslandModalContainer(
+            TeamModalContainer(
                 selectedTeam: $selectedTeam,
                 viewModel: appDayOfWeekViewModel,
                 selectedDay: $selectedDay,

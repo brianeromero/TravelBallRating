@@ -1,13 +1,13 @@
 //
-//  pIslandScheduleListView.swift
-//  Mat_Finder
+//  teamScheduleListView.swift
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/12/24.
 //
 
 import SwiftUI
 
-struct pIslandScheduleListView: View {
+struct teamScheduleListView: View {
     let day: DayOfWeek
     let schedules: [MatTime]
 
@@ -89,41 +89,3 @@ struct ScheduleRow: View {
         .padding(.vertical, 5)
     }
 }
-/*
-#if DEBUG
-struct pIslandScheduleListView_Previews: PreviewProvider {
-    static var previews: some View {
-        let context = PersistenceController.preview.container.viewContext
-        
-        // Create sample data
-        let matTime1 = MatTime(context: context)
-        matTime1.time = "10:00 AM"
-        matTime1.gi = true
-        matTime1.noGi = false
-        matTime1.openMat = true
-        matTime1.restrictions = false
-        matTime1.restrictionDescription = nil
-        matTime1.goodForBeginners = true
-        matTime1.kids = false
-        
-        let matTime2 = MatTime(context: context)
-        matTime2.time = "05:00 PM"
-        matTime2.gi = false
-        matTime2.noGi = true
-        matTime2.openMat = false
-        matTime2.restrictions = true
-        matTime2.restrictionDescription = "Beginners only"
-        matTime2.goodForBeginners = false
-        matTime2.kids = true
-        
-        // Create a sample array of MatTime objects
-        let schedules = [matTime1, matTime2]
-        
-        return pIslandScheduleListView(day: .monday, schedules: schedules)
-            .padding()
-            .previewLayout(.sizeThatFits)
-            .environment(\.managedObjectContext, context)
-    }
-}
-#endif
-*/

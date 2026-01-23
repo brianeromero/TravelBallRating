@@ -1,6 +1,6 @@
 //
 //  AddNewTeam.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 6/26/24.
 //
@@ -33,10 +33,10 @@ public struct AddNewTeam: View {
     @State private var toastMessage = ""
     @Binding var navigationPath: NavigationPath
 
-    @Binding var teamDetails: TeamDetails
     @State private var isSuccessAlert = false
-    @State private var teamDetails = TeamDetails()
+    @StateObject private var teamDetails = TeamDetails()
 
+    
     // Body
     public var body: some View {
         ScrollView {
@@ -124,22 +124,26 @@ public struct AddNewTeam: View {
                 .autocapitalization(.words)
 
             Picker("Sport", selection: $teamDetails.sport) {
+                Text("Select a Sport").tag(nil as SportType?)
                 ForEach(SportType.allCases) { sport in
-                    Text(sport.rawValue).tag(sport)
+                    Text(sport.rawValue).tag(sport as SportType?)
                 }
             }.pickerStyle(.menu)
 
             Picker("Gender", selection: $teamDetails.gender) {
+                Text("Select Gender").tag(nil as GenderType?)
                 ForEach(GenderType.allCases) { gender in
-                    Text(gender.rawValue).tag(gender)
+                    Text(gender.rawValue).tag(gender as GenderType?)
                 }
             }.pickerStyle(.menu)
 
             Picker("Age Group", selection: $teamDetails.ageGroup) {
+                Text("Select Age Group").tag(nil as AgeGroupType?)
                 ForEach(AgeGroupType.allCases) { age in
-                    Text(age.rawValue).tag(age)
+                    Text(age.rawValue).tag(age as AgeGroupType?)
                 }
             }.pickerStyle(.menu)
+
 
             TextField("Coach Name", text: $teamDetails.coachName)
                 .textFieldStyle(.roundedBorder)
@@ -162,7 +166,7 @@ public struct AddNewTeam: View {
             city: $teamDetails.city,
             state: $teamDetails.state,
             postalCode: $teamDetails.postalCode,
-            teamDetails: $teamDetails,
+            teamDetails: teamDetails, // Pass the object directly
             selectedCountry: $teamDetails.selectedCountry,
             teamWebsite: $teamWebsite,
             teamWebsiteURL: $teamWebsiteURL,
@@ -248,9 +252,9 @@ public struct AddNewTeam: View {
         do {
             let newTeam = try await teamViewModel.createTeam(
                 teamName: teamDetails.teamName,
-                sport: teamDetails.sport.rawValue,
-                gender: teamDetails.gender.rawValue,
-                ageGroup: teamDetails.ageGroup.rawValue,
+                sport: teamDetails.sport?.rawValue ?? "",
+                gender: teamDetails.gender?.rawValue ?? "",
+                ageGroup: teamDetails.ageGroup?.rawValue ?? "",
                 coachName: teamDetails.coachName,
                 contactEmail: teamDetails.contactEmail,
                 createdByUser: currentUser
@@ -330,19 +334,44 @@ public struct AddNewTeam: View {
     }
 
     private func validateTeamForm() -> Bool {
+        // Validate team name
         if teamDetails.teamName.trimmingCharacters(in: .whitespaces).isEmpty {
             toastMessage = "Team name is required"
             showToast = true
             return false
         }
 
+        // Validate email
         if teamDetails.contactEmail.isEmpty || !teamDetails.contactEmail.contains("@") {
             toastMessage = "Valid email required"
             showToast = true
             return false
         }
+
+        // Validate sport
+        if teamDetails.sport == nil {
+            toastMessage = "Please select a sport"
+            showToast = true
+            return false
+        }
+
+        // Validate gender
+        if teamDetails.gender == nil {
+            toastMessage = "Please select a gender"
+            showToast = true
+            return false
+        }
+
+        // Validate age group
+        if teamDetails.ageGroup == nil {
+            toastMessage = "Please select an age group"
+            showToast = true
+            return false
+        }
+
         return true
     }
+
 
     private func saveTeam(currentUser: User, onSave: @escaping () async -> Void) async {
         guard let selectedCountry = teamDetails.selectedCountry else {
@@ -389,11 +418,10 @@ public struct AddNewTeam: View {
         teamDetails.governorate = ""
         teamDetails.province = ""
         teamDetails.additionalInfo = ""
-        teamDetails = ""
-        teamDetails.teamWebsite = ""
+        teamDetails.coachName = ""
+        teamDetails.contactEmail = ""
+        teamWebsite = ""
         teamWebsiteURL = nil
-
-        // Clear team details as well
-        teamDetails = TeamDetails()
     }
+
 }

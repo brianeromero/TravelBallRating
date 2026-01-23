@@ -1,6 +1,6 @@
 //
 //  FirestoreSyncManager.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 5/23/25.
 //

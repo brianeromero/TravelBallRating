@@ -1,6 +1,6 @@
 //
 //  TeamSection.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 9/22/24.
 //
@@ -10,7 +10,7 @@ import SwiftUI
 import CoreData
 
 struct TeamSection: View {
-    var islands: [Team]
+    var teams: [Team]
     @Binding var selectedTeamID: UUID?
     @Binding var showReview: Bool
 
@@ -20,7 +20,7 @@ struct TeamSection: View {
                 Text("Select a team").tag(nil as UUID?)
 
                 ForEach(teams, id: \.teamID) { team in
-                    Text(team.teamName ?? "Unknown team")
+                    Text(team.teamName)
                         .tag(team.teamID)
                 }
             }

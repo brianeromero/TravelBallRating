@@ -52,8 +52,8 @@ struct EnterZipCodeView: View {
                 mapSection
                     .frame(height: 400)
                     .onReceive(enterZipCodeViewModel.$teams) { markers in
-                        let updatedIslands = markers.compactMap { $0.team }
-                        self.searchResults = updatedIslands
+                        let updatedTeams = markers.compactMap { $0.team }
+                        self.searchResults = updatedTeams
                     }
 
                 // Radius Picker
@@ -91,7 +91,7 @@ struct EnterZipCodeView: View {
         }
         .navigationViewStyle(StackNavigationViewStyle())
         .floatingModal(isPresented: $showModal) {
-            IslandModalContainer(
+            TeamModalContainer(
                 selectedTeam: $selectedTeam,
                 viewModel: appDayOfWeekViewModel,
                 selectedDay: $selectedDay,

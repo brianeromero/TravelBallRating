@@ -1,6 +1,6 @@
 //
 //  FirestoreManager.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 
 import Foundation

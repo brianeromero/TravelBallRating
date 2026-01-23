@@ -1,6 +1,6 @@
 //
 //  AllMapView.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 6/26/24.
 //
@@ -21,11 +21,11 @@ struct CoordinateWrapper: Equatable {
 
 struct AllMapView: View {
     @State private var region: MKCoordinateRegion
-    let islands: [Team]
+    let teams: [Team]
     let userLocation: CoordinateWrapper
 
-    init(islands: [Team], userLocation: CLLocationCoordinate2D) {
-        self.islands = islands
+    init(teams: [Team], userLocation: CLLocationCoordinate2D) {
+        self.teams = teams
         self.userLocation = CoordinateWrapper(coordinate: userLocation)
         
         let initialRegion = MKCoordinateRegion(
@@ -36,7 +36,7 @@ struct AllMapView: View {
     }
 
     var body: some View {
-        Map(coordinateRegion: $region, annotationItems: islands.compactMap { team -> CustomMapMarker? in
+        Map(coordinateRegion: $region, annotationItems: teams.compactMap { team -> CustomMapMarker? in
             // Use optional coalescing to provide default values for optional properties
             let title = team.teamName
             let latitude = team.latitude

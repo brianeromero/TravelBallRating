@@ -1,6 +1,6 @@
 //
 //  ErrorReporting.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 5/22/25.
 //

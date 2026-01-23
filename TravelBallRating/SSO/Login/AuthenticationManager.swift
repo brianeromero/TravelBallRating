@@ -35,7 +35,7 @@ class AuthenticationManager {
     }
 
     /// Handles authentication using a given credential (Google, Facebook, etc.)
-    func handleAuthentication(with credential: AuthCredential, completion: @escaping (Result<Mat_Finder.User, Error>) -> Void) {
+    func handleAuthentication(with credential: AuthCredential, completion: @escaping (Result<TravelBallRating.User, Error>) -> Void) {
         // Log current user (if any)
         if let currentUser = Auth.auth().currentUser {
             self.log(message: "Currently signed in as \(currentUser.uid)", level: .info)

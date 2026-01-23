@@ -31,7 +31,7 @@
 			<string>Google</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.1086614683073-m41ig0e8akp55q680tinnau88khlk364</string>
+                <string>com.googleusercontent.apps.1086614683073-5o1iak5qn7jd7ao02racuvrfvnjmslaj</string>
 			</array>
 		</dict>
 	</array>
@@ -56,17 +56,17 @@
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-7376161442418831~2252904765</string>
 	<key>GIDClientID</key>
-	<string>1086614683073-m41ig0e8akp55q680tinnau88khlk364.apps.googleusercontent.com</string>
+    <string>1086614683073-5o1iak5qn7jd7ao02racuvrfvnjmslaj.apps.googleusercontent.com</string>
 	<key>GIDLogLevel</key>
 	<string>VERBOSE</string>
 	<key>GoogleClientID</key>
-	<string>1086614683073-m41ig0e8akp55q680tinnau88khlk364.apps.googleusercontent.com</string>
+    <string>1086614683073-5o1iak5qn7jd7ao02racuvrfvnjmslaj.apps.googleusercontent.com</string>
 	<key>GoogleMapsAPIKey</key>
 	<string>AIzaSyBWtWAZ_WBQKjpsL3QQJH9xk7Ghtj0mtfY</string>
 	<key>KeychainAccessGroups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)com.google.iid</string>
-		<string>$(AppIdentifierPrefix)MF-inder.Seas-3</string>
+        <string>$(AppIdentifierPrefix)com.googleusercontent.apps.1086614683073-5o1iak5qn7jd7ao02racuvrfvnjmslaj</string>
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>

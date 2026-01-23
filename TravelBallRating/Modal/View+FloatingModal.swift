@@ -1,6 +1,6 @@
 //
 //  View+FloatingModal.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 11/24/25.
 //

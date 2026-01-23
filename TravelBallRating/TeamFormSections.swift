@@ -36,7 +36,7 @@ struct TeamFormationSections: View {
     @Binding var state: String
     @Binding var postalCode: String
 
-    @Binding var teamDetails: TeamDetails
+    @ObservedObject var teamDetails: TeamDetails
     @Binding var selectedCountry: Country?
     @Binding var teamWebsite: String
     @Binding var teamWebsiteURL: URL?
@@ -569,7 +569,7 @@ struct TeamFormationSections: View {
                     formState.zoneErrorMessage = ""
                 }
             case .island:
-                if teamDetails.team.isEmptyOrWhitespace {
+                if teamDetails.island.isEmptyOrWhitespace {
                     formState.islandErrorMessage = errorMessages[field]?.0 ?? ""
                     isValid = false
                 } else {

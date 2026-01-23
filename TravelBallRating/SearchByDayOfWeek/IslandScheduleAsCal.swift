@@ -1,13 +1,13 @@
 //
-//  IslandScheduleAsCal.swift
-//  Mat_Finder
+//  TeamScheduleAsCal.swift
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/8/24.
 //
 
 import SwiftUI
 
-struct IslandScheduleAsCal: View {
+struct TeamScheduleAsCal: View {
     @ObservedObject var viewModel: AppDayOfWeekViewModel
     var team: Team?
 
@@ -207,68 +207,3 @@ struct EventView: View {
         scheduleView(for: event)
     }
 }
-
-/*
-struct IslandScheduleAsCal_Previews: PreviewProvider {
-    static var previews: some View {
-        let persistenceController = PersistenceController.preview
-        
-        // Create a mock Team instance
-        let mockIsland = Team(context: persistenceController.container.viewContext)
-        mockIsland.teamID = UUID()
-        mockIsland.teamName = "Mock team"
-
-        // Create mock AppDayOfWeek instances
-        let appDayOfWeek1 = AppDayOfWeek(context: persistenceController.container.viewContext)
-        appDayOfWeek1.appDayOfWeekID = UUID().uuidString
-        appDayOfWeek1.day = DayOfWeek.monday.rawValue
-        appDayOfWeek1.name = "Morning Class"
-        
-        let appDayOfWeek2 = AppDayOfWeek(context: persistenceController.container.viewContext)
-        appDayOfWeek2.appDayOfWeekID = UUID().uuidString
-        appDayOfWeek2.day = DayOfWeek.tuesday.rawValue
-        appDayOfWeek2.name = "Evening Class"
-        
-        // Create MatTime instances and associate them with AppDayOfWeek
-        let matTime1 = MatTime(context: persistenceController.container.viewContext)
-        matTime1.id = UUID()
-        matTime1.time = "10:00"
-        matTime1.gi = true
-        matTime1.noGi = false
-        matTime1.openMat = false
-        matTime1.restrictions = false
-        matTime1.restrictionDescription = nil
-        matTime1.goodForBeginners = true
-        matTime1.kids = false
-
-        let matTime2 = MatTime(context: persistenceController.container.viewContext)
-        matTime2.id = UUID()
-        matTime2.time = "18:00"
-        matTime2.gi = false
-        matTime2.noGi = true
-        matTime2.openMat = true
-        matTime2.restrictions = true
-        matTime2.restrictionDescription = "Limited Space"
-        matTime2.goodForBeginners = false
-        matTime2.kids = true
-        
-        // Associate MatTime with AppDayOfWeek
-        appDayOfWeek1.addToMatTimes(matTime1)
-        appDayOfWeek2.addToMatTimes(matTime2)
-        
-        // Initialize EnterZipCodeViewModel
-        let mockEnterZipCodeViewModel = EnterZipCodeViewModel(repository: AppDayOfWeekRepository(persistenceController: persistenceController), persistenceController: persistenceController)
-        
-        // Initialize the view model
-        let viewModel = AppDayOfWeekViewModel(
-            selectedTeam: mockIsland,
-            repository: AppDayOfWeekRepository(persistenceController: persistenceController),
-            enterZipCodeViewModel: mockEnterZipCodeViewModel
-        )
-        viewModel.appDayOfWeekList = [appDayOfWeek1, appDayOfWeek2]
-
-        return IslandScheduleAsCal(viewModel: viewModel, team: mockIsland)
-            .previewDisplayName("team Schedule Preview")
-    }
-}
-*/

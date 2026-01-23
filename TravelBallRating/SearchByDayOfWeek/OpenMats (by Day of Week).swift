@@ -1,6 +1,6 @@
 //
 //  OpenMats (by Day of Week).swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 7/3/24.
 //

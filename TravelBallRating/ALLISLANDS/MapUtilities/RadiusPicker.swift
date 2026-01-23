@@ -1,6 +1,6 @@
 //
 //  RadiusPicker.swift
-//  Mat_Finder
+//  TravelBallRating
 //
 //  Created by Brian Romero on 9/6/24.
 //

@@ -4,17 +4,17 @@ import Combine
 import CoreLocation
 import Foundation
 
-enum IslandDestination: String, CaseIterable {
+enum TeamDestination: String, CaseIterable {
     case schedule = "Schedule"
     case website = "Website"
 }
-struct IslandDetailView: View {
+struct TeamDetailView: View {
     let team: Team
-    @Binding var selectedDestination: IslandDestination?
+    @Binding var selectedDestination: TeamDestination?
     @StateObject var viewModel: AllEnteredLocationsViewModel
     @State private var navigationPath = NavigationPath()
 
-    init(team: Team, selectedDestination: Binding<IslandDestination?>) {
+    init(team: Team, selectedDestination: Binding<TeamDestination?>) {
         self.team = team
         self._selectedDestination = selectedDestination
         
@@ -25,16 +25,16 @@ struct IslandDetailView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     var body: some View {
-        IslandDetailContent(
+        TeamDetailContent(
             team: team,
             selectedDestination: $selectedDestination,
             viewModel: viewModel,
             navigationPath: $navigationPath
         )
-        .onAppear(perform: fetchIsland)
+        .onAppear(perform: fetchTeam)
     }
 
-    private func fetchIsland() {
+    private func fetchTeam() {
         guard let teamID = team.teamID else {
             print("team ID is nil.")
             return
@@ -52,9 +52,9 @@ struct IslandDetailView: View {
     }
 }
 
-struct IslandDetailContent: View {
+struct TeamDetailContent: View {
     let team: Team
-    @Binding var selectedDestination: IslandDestination?
+    @Binding var selectedDestination: TeamDestination?
     @State private var showMapView = false
     @ObservedObject var viewModel: AllEnteredLocationsViewModel
     @StateObject var mapViewModel = AppDayOfWeekViewModel(
@@ -105,7 +105,7 @@ struct IslandDetailContent: View {
                     .onChange(of: createdByUserId) { oldValue, newValue in
                         Logger.logCreatedByIdEvent(
                             createdByUserId: newValue,
-                            fileName: "IslandDetailView",
+                            fileName: "TeamDetailView",
                             functionName: "body"
                         )
                     }
@@ -121,7 +121,7 @@ struct IslandDetailContent: View {
                 .padding(.bottom, 10)
 
             // Navigation Buttons
-            ForEach(IslandDestination.allCases, id: \.self) { destination in
+            ForEach(TeamDestination.allCases, id: \.self) { destination in
                 if destination == .website {
                     Button(action: {
                         if let url = team.teamWebsite {
@@ -136,7 +136,7 @@ struct IslandDetailContent: View {
                             .foregroundColor(.blue)
                     }
                 } else if destination == .schedule {
-                    NavigationLink(destination: IslandScheduleAsCal(
+                    NavigationLink(destination: TeamScheduleAsCal(
                         viewModel: mapViewModel,
                         team: team
                     )) {

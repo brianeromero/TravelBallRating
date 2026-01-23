@@ -1,5 +1,5 @@
-//  ViewReviewforIsland.swift
-//  Mat_Finder
+//  ViewReviewforTeam.swift
+//  TravelBallRating
 //
 //  Created by Brian Romero on 8/28/24.
 //
@@ -26,7 +26,7 @@ enum AppScreen: Hashable, Identifiable, Codable {
     case dayOfWeek
     case addNewteam
     case updateExistingTeams
-    case editExistingIsland(String)
+    case editExistingTeam(String)
     case addOrEditScheduleOpenMat
     case faqDisclaimer
 
@@ -55,7 +55,7 @@ enum AppScreen: Hashable, Identifiable, Codable {
         case .dayOfWeek: return "dayOfWeek"
         case .addNewTeam: return "addNewTeam"
         case .updateExistingTeams: return "updateExistingTeams"
-        case .editExistingIsland(let id): return "editExistingIsland-\(id)"
+        case .editExistingTeam(let id): return "editExistingTeam-\(id)"
         case .addOrEditScheduleOpenMat: return "addOrEditScheduleOpenMat"
         case .faqDisclaimer: return "faqDisclaimer"
         
@@ -76,7 +76,7 @@ enum AppScreen: Hashable, Identifiable, Codable {
     private enum CodingKeys: String, CodingKey {
         case review, viewAllReviews, selectTeamForReview, searchReviews
         case profile, allLocations, currentLocation, postalCode, dayOfWeek
-        case addNewTeam, updateExistingTeams, editExistingIsland
+        case addNewTeam, updateExistingTeams, editExistingTeam
         case addOrEditScheduleOpenMat, faqDisclaimer
         
         // New CodingKeys
@@ -114,8 +114,8 @@ enum AppScreen: Hashable, Identifiable, Codable {
             self = .addNewTeam
         } else if container.contains(.updateExistingTeams) {
             self = .updateExistingTeams
-        } else if let id = try container.decodeIfPresent(String.self, forKey: .editExistingIsland) {
-            self = .editExistingIsland(id)
+        } else if let id = try container.decodeIfPresent(String.self, forKey: .editExistingTeam) {
+            self = .editExistingTeam(id)
         } else if container.contains(.addOrEditScheduleOpenMat) {
             self = .addOrEditScheduleOpenMat
         } else if container.contains(.faqDisclaimer) {
@@ -158,8 +158,8 @@ enum AppScreen: Hashable, Identifiable, Codable {
             try container.encodeNil(forKey: .addNewTeam)
         case .updateExistingTeams:
             try container.encodeNil(forKey: .updateExistingTeams)
-        case .editExistingIsland(let id):
-            try container.encode(id, forKey: .editExistingIsland)
+        case .editExistingTeam(let id):
+            try container.encode(id, forKey: .editExistingTeam)
         case .addOrEditScheduleOpenMat:
             try container.encodeNil(forKey: .addOrEditScheduleOpenMat)
         case .faqDisclaimer:
@@ -212,7 +212,7 @@ enum SortType: String, CaseIterable, Identifiable {
 
 
 
-struct ViewReviewforIsland: View {
+struct ViewReviewforTeam: View {
     
     @Environment(\.managedObjectContext) var viewContext
     @Binding var showReview: Bool
@@ -282,14 +282,14 @@ struct ViewReviewforIsland: View {
     private var mainContent: some View {
         VStack(alignment: .leading) {
             TeamSection(
-                islands: Array(teams),
+                teams: Array(teams),
                 selectedTeamID: $selectedTeamID,
                 showReview: $showReview
             )
             .padding(.horizontal, 16)
 
 
-            if let team = selectedIslandInternal {
+            if let team = selectedTeamInternal {
                 SortSection(selectedSortType: $selectedSortType)
                     .padding(.horizontal, 16)
 
@@ -328,14 +328,14 @@ struct ViewReviewforIsland: View {
 
  
     private func handleOnAppear() {
-        guard selectedIslandInternal != nil else { return }
+        guard selectedTeamInternal != nil else { return }
         guard filteredReviewsCache.isEmpty else { return }
 
         os_log(
-            "ViewReviewforIsland onAppear - team: %@",
+            "ViewReviewforTeam onAppear - team: %@",
             log: logger,
             type: .info,
-            selectedIslandInternal?.teamName ?? "nil"
+            selectedTeamInternal?.teamName ?? "nil"
         )
 
         Task { await loadReviews() }
@@ -424,11 +424,11 @@ struct ViewReviewforIsland: View {
                 filteredReviewsCache = []
                 averageRating = 0.0
             }
-            os_log("ViewReviewforIsland: loadReviews called with nil team", log: logger, type: .info)
+            os_log("ViewReviewforTeam: loadReviews called with nil team", log: logger, type: .info)
             return
         }
 
-        os_log("ViewReviewforIsland: Loading reviews for team: %@", log: logger, type: .info, team.teamName ?? "Unknown")
+        os_log("ViewReviewforTeam: Loading reviews for team: %@", log: logger, type: .info, team.teamName ?? "Unknown")
 
         do {
             guard let context = team.managedObjectContext else {
@@ -441,15 +441,15 @@ struct ViewReviewforIsland: View {
             }
 
             // ✅ Capture only the objectID, not the whole NSManagedObject
-            let islandObjectID = team.objectID
+            let teamObjectID = team.objectID
 
             let fetchedReviews = try await context.perform {
-                guard let safeIsland = try? context.existingObject(with: islandObjectID) as? Team else {
+                guard let safeTeam = try? context.existingObject(with: teamObjectID) as? Team else {
                     throw NSError(domain: "CoreData", code: 200, userInfo: [NSLocalizedDescriptionKey: "Failed to rehydrate Taeam for fetch"])
                 }
 
                 let request = Review.fetchRequest() as! NSFetchRequest<Review>
-                request.predicate = NSPredicate(format: "team == %@", safeIsland)
+                request.predicate = NSPredicate(format: "team == %@", safeTeam)
                 request.sortDescriptors = [
                     NSSortDescriptor(key: selectedSortType.sortKey, ascending: selectedSortType.ascending)
                 ]
@@ -458,9 +458,9 @@ struct ViewReviewforIsland: View {
 
             // Fetch average rating safely using objectID as well
             let fetchedAvgRating = await ReviewUtils.fetchAverageRating(
-                forObjectID: islandObjectID,
+                forObjectID: teamObjectID,
                 in: context,
-                callerFunction: "ViewReviewforIsland.loadReviews"
+                callerFunction: "ViewReviewforTeam.loadReviews"
             )
 
             await MainActor.run {
@@ -468,10 +468,10 @@ struct ViewReviewforIsland: View {
                 self.averageRating = Double(fetchedAvgRating)
             }
 
-            os_log("ViewReviewforIsland: Updated reviews and average rating for team %@", log: logger, type: .info, team.teamName ?? "Unknown")
+            os_log("ViewReviewforTeam: Updated reviews and average rating for team %@", log: logger, type: .info, team.teamName ?? "Unknown")
 
         } catch {
-            os_log("ViewReviewforIsland: Failed to fetch reviews: %@", log: logger, type: .error, error.localizedDescription)
+            os_log("ViewReviewforTeam: Failed to fetch reviews: %@", log: logger, type: .error, error.localizedDescription)
             await MainActor.run {
                 self.filteredReviewsCache = []
                 self.averageRating = 0.0
